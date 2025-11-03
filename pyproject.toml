@@ -1,0 +1,7 @@
+[project]
+name = "attrm"
+version = "0.1.0"
+description = "Assistant To The Regional Manager"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = ["click>=8.3.0", "langchain[openai]>=1.0.3"]
