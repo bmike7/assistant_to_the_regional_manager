@@ -54,6 +54,9 @@ class ATTRMConfig:
         )
 
     @property
+    def exists(self) -> bool:
+        return self.path.exists()
+
+    @property
     def projects(self) -> list[Path]:
         return self.config.dirs
-

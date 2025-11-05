@@ -3,10 +3,13 @@ Assistant To The Regional Manager
 """
 
 from dataclasses import dataclass
-from typing import Generic, Protocol, Self, TypeVar
+from functools import partial, update_wrapper
+from typing import Callable, Generic, Protocol, Self, TypeVar
 
 import click
 import cutie
+
+from .config import ATTRMConfig
 
 
 def abort(msg: str) -> None:
@@ -38,4 +41,18 @@ def select(prompt: str, options: list[Option[T]]) -> list[T]:
 
 
 @click.group(help=__doc__)
-def cli() -> None: ...
+@click.pass_context
+def cli(ctx) -> None:
+    ctx.ensure_object(dict)
+    ctx.obj["config"] = ATTRMConfig()
+
+
+def pass_ctx(f: Callable, loc: str):
+    @click.pass_context
+    def _inject_config(ctx, *args, **kwargs):
+        return ctx.invoke(f, ctx.obj[loc], *args, **kwargs)
+
+    return update_wrapper(_inject_config, f)
+
+
+pass_config = partial(pass_ctx, loc="config")

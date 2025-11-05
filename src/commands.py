@@ -7,8 +7,7 @@ from pathlib import Path
 import click
 from langchain.agents import create_agent
 
-from .config import ATTRMConfig
-from .cli import Option, abort, cli, select
+from .cli import ATTRMConfig, Option, abort, cli, pass_config, select
 
 
 @dataclass
@@ -68,11 +67,11 @@ def search_git_repositories(search_path: Path) -> list[Path]:
 
 
 @cli.command(help="Configures which `git` repositories you want to report on")
-def config() -> None:
-    config = ATTRMConfig()
+@pass_config
+def config(cfg: ATTRMConfig) -> None:
     search_path = input("Where are your repositories located?: ~/")
-    config.update_dirs(search_git_repositories(Path.home() / search_path))
-    config.save()
+    cfg.update_dirs(search_git_repositories(Path.home() / search_path))
+    cfg.save()
 
 
 @cli.command(help="Summarize what `author` did on given day")
@@ -80,13 +79,14 @@ def config() -> None:
 @click.argument(
     "day",
     type=click.DateTime(formats=["%Y-%m-%d"]),
-    default=str(dt.date.today()),
+    default=str(dt.date.today() - dt.timedelta(days=1)),
 )
-def tattletale(author: str, day: dt.date) -> None:
-    config = ATTRMConfig()
-    if not config.path.exists():
+@pass_config
+def tattletale(cfg: ATTRMConfig, author: str, day: dt.date) -> None:
+    if not cfg.exists:
         abort("No configuration, first run: `attrm config`")
-    for project in config.projects:
+
+    for project in cfg.projects:
         question = (
             f"What did '{author}' do on {day} on the following project: {project}?"
         )
