@@ -86,20 +86,10 @@ def tattletale(cfg: ATTRMConfig, author: str, day: dt.date) -> None:
     if not cfg.exists:
         abort("No configuration, first run: `attrm config`")
 
-    for project in cfg.projects:
-        question = (
-            f"What did '{author}' do on {day} on the following project: {project}?"
-        )
+    for proj in cfg.projects:
+        question = f"What did '{author}' do on {day} on the following project: {proj}?"
         result = agent.invoke({"messages": [{"role": "user", "content": question}]})
-        print(
-            json.dumps(
-                asdict(
-                    Summary(
-                        project=str(project),
-                        day=str(day),
-                        summary=result["messages"][-1].content,
-                    )
-                ),
-                indent=2,
-            )
-        )
+        content = result["messages"][-1].content
+
+        report = Summary(project=str(proj), day=str(day), summary=content)
+        print(json.dumps(asdict(report), indent=2))

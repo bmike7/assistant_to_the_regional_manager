@@ -1,14 +1,81 @@
 # Assistant To The Regional Manager
 
 Number 2 agent that tattletales on you. Telling what a specific
-author did on a given day, e.g.:
+author did on a given day.
+
+
+## 💅 Motivation
+
+Is following scenario all too familiar to you?:
+
+> [PM] Hey Mike, tomorrow is the last day of the month, can you submit your
+> timesheets?
+>
+> [You (internally)] WT* did I do over the last month???
+
+
+As a prerequisite for using this tool and in case you didn't already, you
+should write descriptive git commit messages.
+
+
+## 💾 Installation
 
 ```
-$ attrm tattletale [PROJECT] Mike 2025-10-28
+$ uv tool install git+https://github.com/bmike7/assistant_to_the_regional_manager.git
+```
 
+Make sure your `OPENAI_API_KEY` env variable is set
+
+
+## 🤖 Example usage
+
+```
+$ attrm --help
+Usage: attrm [OPTIONS] COMMAND [ARGS]...
+
+  Assistant To The Regional Manager
+
+  This program expects an `OPENAI_API_KEY` env variable.
+
+Options:
+  --help  Show this message and exit.
+
+Commands:
+  config      Configures which `git` repositories you want to report on
+  tattletale  Summarize what `author` did on given day
+```
+
+```
+$ attrm config
+Where are your repositories located?: ~/repos
+Track following repos:
+...
+(x) ~/repos/personal/attrm
+( ) ~/repos/personal/gitkit
+...
+
+$ attrm tattletale Mike
 {
-  "project": "/some_repo",
-  "day": "2025-10-28",
-  "summary": "On 2025-10-28, Mike improved the security and management of the project by introducing a tool to help automate system administration, making the server's remote access more secure, applying new firewall protections, and setting up an automatic system to block people who try to break in repeatedly."
+  "project": "~/repos/personal/attrm",
+  "day": "2025-11-04 00:00:00",
+  "summary": "On 2025-11-04, Mike worked on improving how the program saves and handles its settings, making it cleaner and ensuring it stores them in the right place for each operating system."
 }
 ```
+
+Because it returns `json` you can use it for future automation:
+
+- `attrm tattletale Mike | jq ".summary"`
+- if your timesheets can be submitted via an API, you can use this as input
+  e.g.: `gitkit sign-off` (with an intermediate step to verify the summary)
+
+
+### 🚧 TO-DO
+
+- prevent LLM requests by proactively looking if there even is a git history
+- look at alternatives for ChatGPT, LocalAI for example
+
+
+### 💡 FYI
+
+I don't use LLM's that often. At least not for coding, but this actually saves
+me quite some time.
