@@ -12,7 +12,7 @@ dependencies = [
 ]
 
 [project.scripts]
-attrm = "src.main:cli"
+attrm = "src.main:main"
 
 [build-system]
 requires = ["hatchling"]
