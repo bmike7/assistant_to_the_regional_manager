@@ -24,7 +24,7 @@ should write descriptive git commit messages.
 $ uv tool install git+https://github.com/bmike7/assistant_to_the_regional_manager.git
 ```
 
-Make sure your `OPENAI_API_KEY` env variable is set
+Make sure your `ANTHROPIC_API_KEY` env variable is set
 
 
 ## 🤖 Example usage
@@ -35,7 +35,7 @@ Usage: attrm [OPTIONS] COMMAND [ARGS]...
 
   Assistant To The Regional Manager
 
-  This program expects an `OPENAI_API_KEY` env variable.
+  This program expects an `ANTHROPIC_API_KEY` env variable.
 
 Options:
   --help  Show this message and exit.
@@ -67,12 +67,6 @@ Because it returns `json` you can use it for future automation:
 - `attrm tattletale Mike | jq ".summary"`
 - if your timesheets can be submitted via an API, you can use this as input
   e.g.: `gitkit sign-off` (with an intermediate step to verify the summary)
-
-
-### 🚧 TO-DO
-
-- prevent LLM requests by proactively looking if there even is a git history
-- look at alternatives for ChatGPT, LocalAI for example
 
 
 ### 💡 FYI

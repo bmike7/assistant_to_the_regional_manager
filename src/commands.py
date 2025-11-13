@@ -1,11 +1,12 @@
 import json
+import os
 import subprocess
 import datetime as dt
 from dataclasses import asdict, dataclass
 from pathlib import Path
 
+import anthropic
 import click
-from langchain.agents import create_agent
 
 from .cli import ATTRMConfig, Option, abort, cli, pass_config, select
 
@@ -36,19 +37,6 @@ def get_git_history(project: Path, author: str, day: dt.date) -> str:
         check=True,
         cwd=project,
     ).stdout
-
-
-# TO-DO: look into localai
-agent = create_agent(
-    model="gpt-4.1",
-    tools=[get_git_history],
-    system_prompt="You are the assistant to the regional manager, "
-    "making sure subordinates fill in their timesheets correctly, "
-    "according to their git histories. So given their git histories for "
-    "the projects they are working on, summarise in one sentence what "
-    "that author did that day. Explain it in a way a non-technical "
-    "person can understand it.",
-)
 
 
 def search_git_repositories(search_path: Path) -> list[Path]:
@@ -86,10 +74,34 @@ def tattletale(cfg: ATTRMConfig, author: str, day: dt.date) -> None:
     if not cfg.exists:
         abort("No configuration, first run: `attrm config`")
 
-    for proj in cfg.projects:
-        question = f"What did '{author}' do on {day} on the following project: {proj}?"
-        result = agent.invoke({"messages": [{"role": "user", "content": question}]})
-        content = result["messages"][-1].content
+    client = anthropic.Anthropic(api_key=os.environ.get("ANTHROPIC_API_KEY"))
+    system_prompt = (
+        "You are the assistant to the regional manager, "
+        "making sure subordinates fill in their timesheets correctly, "
+        "according to their git histories. So given their git histories for "
+        "the projects they are working on, summarise in one sentence what "
+        "that author did that day. Explain it in a way a non-technical "
+        "person can understand it. Phrase it as if you did it."
+    )
 
+    for proj in cfg.projects:
+        git_log = get_git_history(proj, author, day)
+        if not git_log.strip():
+            continue
+
+        message = client.messages.create(
+            model="claude-3-5-sonnet-20241022",
+            max_tokens=1024,
+            system=system_prompt,
+            messages=[
+                {
+                    "role": "user",
+                    "content": f"Here is the git history for {author} on {day} for project {proj}:"
+                    f"\n\n{git_log}\n\nPlease summarize in one sentence what this author did that day.",
+                }
+            ],
+        )
+
+        content = message.content[0].text
         report = Summary(project=str(proj), day=str(day), summary=content)
         print(json.dumps(asdict(report), indent=2))

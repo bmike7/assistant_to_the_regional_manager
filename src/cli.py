@@ -1,7 +1,7 @@
 """
 Assistant To The Regional Manager
 
-This program expects an `OPENAI_API_KEY` env variable.
+This program expects an `ANTHROPIC_API_KEY` env variable.
 """
 
 from dataclasses import dataclass
