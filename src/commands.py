@@ -1,5 +1,4 @@
 import json
-import os
 import subprocess
 import datetime as dt
 from dataclasses import asdict, dataclass
@@ -8,6 +7,7 @@ from pathlib import Path
 import anthropic
 import click
 
+from .auth import get_api_key
 from .cli import ATTRMConfig, Option, abort, cli, pass_config, select
 
 
@@ -74,14 +74,14 @@ def tattletale(cfg: ATTRMConfig, author: str, day: dt.date) -> None:
     if not cfg.exists:
         abort("No configuration, first run: `attrm config`")
 
-    client = anthropic.Anthropic(api_key=os.environ.get("ANTHROPIC_API_KEY"))
+    client = anthropic.Anthropic(api_key=get_api_key())
     system_prompt = (
         "You are the assistant to the regional manager, "
         "making sure subordinates fill in their timesheets correctly, "
         "according to their git histories. So given their git histories for "
         "the projects they are working on, summarise in one sentence what "
         "that author did that day. Explain it in a way a non-technical "
-        "person can understand it. Phrase it as if you did it."
+        "person can understand it, without telling who did it."
     )
 
     for proj in cfg.projects:
@@ -90,7 +90,7 @@ def tattletale(cfg: ATTRMConfig, author: str, day: dt.date) -> None:
             continue
 
         message = client.messages.create(
-            model="claude-3-5-sonnet-20241022",
+            model="claude-sonnet-4-5",
             max_tokens=1024,
             system=system_prompt,
             messages=[

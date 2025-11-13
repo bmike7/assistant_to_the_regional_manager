@@ -1,7 +1,7 @@
 """
 Assistant To The Regional Manager
 
-This program expects an `ANTHROPIC_API_KEY` env variable.
+Run `attrm login` to set up authentication with your Anthropic API key.
 """
 
 from dataclasses import dataclass
@@ -15,7 +15,7 @@ from .config import ATTRMConfig
 
 
 def abort(msg: str) -> None:
-    print(msg)
+    click.echo(msg)
     raise click.Abort()
 
 
