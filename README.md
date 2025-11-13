@@ -24,7 +24,17 @@ should write descriptive git commit messages.
 $ uv tool install git+https://github.com/bmike7/assistant_to_the_regional_manager.git
 ```
 
-Make sure your `ANTHROPIC_API_KEY` env variable is set
+## 🔑 Setup
+
+First, authenticate with your Anthropic API key:
+
+```
+$ attrm login
+Enter your Anthropic API key: sk-ant-...
+Authentication successful!
+```
+
+Alternatively, you can set the `ANTHROPIC_API_KEY` environment variable.
 
 
 ## 🤖 Example usage
@@ -35,13 +45,15 @@ Usage: attrm [OPTIONS] COMMAND [ARGS]...
 
   Assistant To The Regional Manager
 
-  This program expects an `ANTHROPIC_API_KEY` env variable.
+  Run `attrm login` to set up authentication with your Anthropic API key.
 
 Options:
   --help  Show this message and exit.
 
 Commands:
   config      Configures which `git` repositories you want to report on
+  login       Set up authentication with Anthropic API
+  logout      Remove stored authentication credentials
   tattletale  Summarize what `author` did on given day
 ```
 
